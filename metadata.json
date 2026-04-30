@@ -1,0 +1,9 @@
+{
+  "name": "chuck",
+  "description": "Automated system for Purchase Requests, RIS, and Inventory Management for LGU Pagbilao GSO.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

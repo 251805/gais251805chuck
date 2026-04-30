@@ -1,0 +1,254 @@
+MODULES & DATA LOGIC
+
+
+*****************************************
+Request Generation (Guest) 2 types
+*****************************************
+ITEM GOING IN
+Purchase Request
+PR New Item: A Guest User submits a Purchase Request. The system auto-generates a unique GSOIDMMDDYYXXX. After submission, the user can print a copy (marked "Pending Approval") and wait until Admin Approval. The user can check the status of the request on the query bar.
+when guest user is filling out the Purchase Request form these fields are mandatory and will highlight upon Validation Error: Please fill all mandatory fields (*), the total is auto-computed and there is a button to add another line item, 
+
+strictly use this table name
+GSOID
+PR - put a placeholder that will say "PLEASE LEAVE THIS BLANK" and highlight border of the textbox with faint pink color, it can be optionally filled out by the user.
+BUDGET  - put a placeholder that will say "PLEASE LEAVE THIS BLANK" and highlight border of the textbox with faint pink color, it can be optionally filled out by the user.
+BAC - put a placeholder that will say "PLEASE LEAVE THIS BLANK" and highlight border of the textbox with faint pink color, it can be optionally filled out by the user.
+DEPARTMENT - mandatory field
+DATE - mandatory field
+REQUESTED_BY - mandatory field
+UNIT - mandatory field
+ITEM_DESCRIPTION - mandatory field
+QTY - mandatory field
+UNIT_COST - mandatory field
+SECTION
+STOCK_NO
+TOTAL_COST
+REMARKS
+
+
+ITEM GOING OUT
+Requisition and Issue Slip (RIS)
+
+Path A – Small / Office Supply Replenishment
+Guest submits RIS for small quantities already in stock.
+Mandatory fields: Department, Date, Requested By, Unit, Item Description, Qty.
+Request goes to Admin for approval.
+Once approved, Warehouse issues items and deducts from inventory.
+This ensures every small request is validated before stock moves.
+
+Path B – Bulk / Delivery Integration
+Bulk deliveries (e.g., pallets of paper, boxes of pens) are tagged COMPLETE by Warehouse via Delivery Receipt (DR).
+Instead of requiring the user to input each line item manually, the system auto-generates a bulk RIS record linked to the DR.
+Admin approval is implicit because the PR for bulk items was already approved before delivery.
+Warehouse can then issue items directly from the DR record, deducting stock in one action.
+This avoids double entry and keeps Admin oversight intact
+
+Administrative Approval (Admin)
+The Admin reviews the submitted GSOID, he needs to fills up the PR, BUDGET, BAC and approved. The system now allows the printing of the Official PR and RIS Document.    
+
+Delivery & Receiving (Warehouse)
+Upon the items' physical arrival at the facility, Warehouse Staff retrieves GSOID, performs a technical inspection to tag the order as COMPLETE or DISCREPANCY, input value of ACTUAL ITEMS RECEIVED, input REMARKS, then official Delivery Receipt (DR). A hard copy is printed for the Supplier.
+
+Inventory Integration (Automatic)
+Once the DR is finalized, the system automatically maps and uploads item details to the INVENTORY_MASTER, this triggers a real-time update of Stock Levels across the dashboard.
+
+Issuance & Stock Deduction (User Pickup)
+The user presents their GSOID then the system automatically deducts the quantities from the inventory database.
+
+
+GSOID SYSTEM & CONCURRENCY
+Auto-generated unique identifiers:
+GSOIDMMDDYYXXX 
+*****************************************
+
+
+
+*****************************************
+Technical Requirements & Role-Based Access
+*****************************************
+Landing Page Logic: Role selection splash to prevent Redirect Loops.
+
+Role: GUEST
+Access: Purchase Request and RIS request generation only.
+Auth: No username, No Password required.
+ui view: PR, RIS, Inventory peak see items on hand
+
+Role: ROOT 
+Access: Full CRUD (Create, Read, Update, Delete)search and Print authority across all databases. can add user role and delete user role for admin and warehouse
+implement a "Superuser" check in the login logic that redirects to the Root dashboard if the username is LEE, lee
+username LEE ,lee
+password - metallica or METALLICA
+show after Success login https://github.com/251805/sirpacheck/blob/main/18.png
+but do not show this role, it should be hidden, he can either use the admin or warehouse login page to log as root
+no need to show disclaimer
+
+role: admin 
+DOJIE ,dojie
+password - MGDH1 or mgdh1
+Access: Full CRUD (Create, Read, Update, Delete)search and Print authority across all databases. can add user role and delete user role for warehouse
+# has also the same access as warehouse staff
+# can add warehouse user
+show after Success login https://github.com/251805/sirpacheck/blob/main/dojie.jpg
+
+Role: WAREHOUSE
+Access: search,print GSOID, DR (add), RIS (subtract),
+User: WAREHOUSE / warehouse | Password: warez or WAREZ
+*****************************************
+
+
+
+*****************************************
+CONSTANT
+*****************************************
+when a DEPARTMENT is needed us this list
+Office of the Municipal Mayor
+Office of the Municipal Administrator
+Chief of Staff – Office of Municipal Mayor
+Bureau of Fire Protection (BFP)
+Philippine National Police (PNP)
+Office of the Sangguniang Bayan
+Office of the Secretary to the Sangguniang Bayan
+Municipal Health Office
+Municipal Agriculturist Office
+Municipal Treasurer's Office
+Municipal Accounting Office
+Municipal Social Welfare and Development Office
+Municipal Civil Registrar Office
+Municipal Assessor's Office
+Municipal Planning and Development Coordinator's Office
+Municipal Human Resource Management Office
+Municipal Interior and Local Government Operations Office
+Municipal Engineering Office
+Municipal Budget Office
+Municipal Disaster Risk Reduction and Management Office
+Municipal General Services Office
+Pambayang Kapisanan ng mga Barangay
+
+
+when choosing the role on the login page, it will only be viewed once every session
+1. "AS-IS" PROVISION
+
+This automation tool is provided "AS-IS" for internal productivity purposes of the GSO, and this will not replace any previous, current or future systems. Employee 251805 makes no warranties, express or implied, regarding the continuous performance, accuracy, or reliability of the script.
+
+2. LIMITATION OF LIABILITY
+
+Under no circumstances shall the Employee 251805 be held liable for any direct, indirect, or incidental damages, including but not limited to:
+Data Loss or Corruption: Users are responsible for maintaining independent backups of all data.
+System "Bricking" or Downtime: Technical failures resulting from service interruptions are beyond the Employee 25180 control.
+Service Quotas: This tool operates under Consumer-Tier Quotas. Usage is subject to daily execution limits.
+Any malicious misuse or equivalent activity.
+
+3. THIRD-PARTY DEPENDENCIES
+
+The system relies on external Logic Verification Engines and free API services. 
+
+4. INTELLECTUAL PROPERTY & MAINTENANCE
+
+The underlying logic and custom architecture remain the proprietary property of the Employee 251805. Access is granted under a Limited Usage License tied to the Employee 251805 active employment contract. Unauthorized attempts to modify or migrate the source code without the Employee 251805 oversight may result in permanent system failure.
+
+5. USER ACKNOWLEDGMENT
+
+By clicking "I accept and understand" the User and the Company acknowledge these risks and agree to indemnify the Employee 251805 against all claims arising from the use of this experimental automation.
+
+*****************************************
+
+
+
+
+*****************************************
+UI
+*****************************************
+# website color 
+Primary: Slate Blue (#1E293B) or Navy (#0F172A) – Best for sidebars and headers.
+Action/Accent: Royal Blue (#2563EB) – Used for "Submit," "Add New," or "Approve" buttons.
+Success: Emerald (#10B981) – For "Delivered" or "Accepted" statuses (IAR/RIS).
+Warning: Amber (#F59E0B) – For "Pending" or "Low Stock" alerts.
+Use Tailwind's line-clamp-2 or truncate classes to keep card heights consistent.
+
+#Mobile and pc friendly, with modern website vibe
+
+#PWA (Progressive Web App) Integration**:
+Installability**: The app is now installable on Desktop (Chrome/Edge) and Android.
+Manifest**: Created `manifest.json` with GSO branding, theme colors, and icons.
+Service Worker**: Implemented `sw.js` for basic caching and offline support.
+Branding**: Updated `index.html` with theme colors and PWA metadata.
+
+*****************************************
+
+
+
+*****************************************
+LEFT SIDE NAVIGATION
+*****************************************
+# on the left side navigation panel there is a button link for GSO Pricelist use this link
+https://script.google.com/macros/s/AKfycbzGkFdEOry2OYwepK98sFr0hta1DDKOOwB8kl9KV1DZpCpwIyvv35sTobUJyfHlXvum/exec
+
+# ADD GOOGLE CHAT on left side navigation so gsopagbilao@gmail.com can NOTIFY THE PROGRESS OF THE REQUEST, CHAT TO FOLLOW UP
+
+# also add fb chat on left side navigation small fb icon that says chat with LGU Pagbilao GSO -
+<div id="fb-root"></div>
+<div class="fb-customerchat"
+attribution="setup_tool"
+page_id="61583885130718"
+theme_color="#f59e0b"
+logged_in_greeting="Kamusta! Paano ka po matutulungan ng LGU Pagbilao GSO?"
+logged_out_greeting="Mag-chat sa amin para sa amin para sa inyong inquiry"
+greeting_dialog_display="fade"
+greeting_dialog_delay="3"
+minimized="false">
+Logic: Integrated into App.tsx via the Facebook SDK for real-time support.
+
+*****************************************
+
+
+
+
+
+*****************************************
+# ALWAY SHOW THE  LIVE  /deployment LINK OF THE WEBSITE
+
+# create a history of revision log.txt for 
+
+# add this https://github.com/251805/sirpacheck/blob/main/gso.png on the landing page, crop it as a circle and proportional ui on top of GSO PROCUREMENT SYSTEM, and when the image is click redirect to its fb page - https://www.facebook.com/lgu.pagbilao.gso
+
+# Github ready, make sure every update it should be upload to github
+https://github.com/251805/gais251805
+ASK (Y/N) IF WANT TO UPLOAD TO GITHUB
+
+*****************************************
+
+
+
+
+*****************************************
+Project Integration & Sync List
+*****************************************
+Here is the complete list of details, logic, and links for the various integrations in your project:
+
+# Supabase (Database Source of Truth)
+Real-time Sync: Live synchronization with supabase
+https://jarfhkjcewjjdghwlzna.supabase.co
+sb_publishable_DPzwfn0aqLKEXGlkLv6i0g_QWId5lEz
+postgresql://postgres:[YOUR-PASSWORD]@db.jarfhkjcewjjdghwlzna.supabase.co:5432/postgres
+supabase login
+supabase init
+supabase link --project-ref jarfhkjcewjjdghwlzna
+jarfhkjcewjjdghwlzna
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphcmZoa2pjZXdqamRnaHdsem5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MDcxOTYsImV4cCI6MjA4OTQ4MzE5Nn0.09qrwhBZUQ0bOjEMDErjF44vyQQxURzxypPmOPXpVL0
+
+#Document Generation
+Purpose: Creates printable copy of official forms from templates.
+Templates: https://supabase.com/dashboard/project/lcwfovjmalivtbrugnrl/storage/files/buckets/gais251805
+DR.docx
+PR.docx
+RIS.docx
+    
+ 
+Vercel (Deployment)
+gsopag2gais.vercel.app
+gsopag2gais-git-main-251805s-projects.vercel.app
+gsopag2gais-lvrmruqiv-251805s-projects.vercel.app
+prj_MqQagYmN1QRdOfCXvLsEEtaujia1
+
+*****************************************

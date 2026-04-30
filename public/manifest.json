@@ -1,0 +1,21 @@
+{
+  "name": "GSO Procurement System",
+  "short_name": "GSO Pagbilao",
+  "description": "Inventory and Procurement Management for LGU Pagbilao GSO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "https://github.com/251805/sirpacheck/blob/main/gso.png?raw=true",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://github.com/251805/sirpacheck/blob/main/gso.png?raw=true",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

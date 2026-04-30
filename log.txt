@@ -1,0 +1,13 @@
+GSO PROCUREMENT SYSTEM - REVISION LOG
+
+[2026-04-30 13:25] Phase 1: Core Guest Infrastructure
+- Initialized Project with Supabase integration.
+- Created SQL Schema for GSOID, Line Items, and Inventory Master.
+- Implemented Landing Page with Disclaimer and Role-Based Login Logic.
+- Integrated GSOID generation logic (GSOIDMMDDYYXXX).
+- Built Purchase Request (PR) Form with multi-line item support and auto-calculation.
+- Built RIS Request Form for small items.
+- Developed real-time Inventory Peak view using Supabase Realtime.
+- Integrated Facebook Customer Chat SDK.
+- Configured PWA Manifest and basic Service Worker.
+- Applied responsive design and custom branding.
