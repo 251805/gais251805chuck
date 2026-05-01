@@ -36,3 +36,22 @@ export interface InventoryItem {
   unit_cost: number;
   updated_at: string;
 }
+
+export interface RISRequest {
+  id?: string;
+  gsoid: string;
+  department: string;
+  date: string;
+  requested_by: string;
+  item_description: string;
+  unit: string;
+  qty: number;
+  section?: string;
+  stock_no?: string;
+  remarks?: string;
+  status: 'PENDING' | 'APPROVED' | 'COMPLETE';
+  approved_by?: string;
+  actual_received?: number;
+  is_issued?: boolean;
+  created_at?: string;
+}

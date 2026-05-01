@@ -1,6 +1,6 @@
 {
   "name": "chuck",
-  "description": "Automated system for Purchase Requests, RIS, and Inventory Management for LGU Pagbilao GSO.",
+  "description": "-always use gais252805 as your guide project throughout this project\n-first you need to setup supabase, create the table for the PR request and use the suggested table name in gais251805, create a sql scrtipt to connect it, for the print out you can find the bucket link for the template and api inside gais251805 for Project Integration & Sync List\n-setup vercel and link it to this project,use the project id inside gais251805 for Project Integration & Sync List\n-once done setting up, prepare the main splash showing guest, warehouse and admin\n-phase one will focus only on the logic of the guest user,from filling out the form, submission and document generation\n\n    guest ui will show pr and ris and inventory view\n    -use gais251805 as guide for the ui\n    -use gais251805 as guide for the left side navigation\n    -use the contant for dept list and disclaimer\n    -after done with phase 1 upto then we will move to phase 2\n\nAutomated system for Purchase Requests, RIS, and Inventory Management for LGU Pagbilao GSO.\n",
   "requestFramePermissions": [
     "camera",
     "microphone"

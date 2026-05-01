@@ -118,11 +118,11 @@ export default function LandingPage() {
               GSO <span className="text-blue-600">Procurement</span> System
             </h1>
             <p className="text-lg text-slate-600 mt-2">
-              LGU Pagbilao - General Services Office
+              Quezon’s First in Digital Logistics
             </p>
           </div>
           <div className="flex flex-col space-y-4">
-            <p className="text-slate-500 font-medium italic">"Ensuring efficiency in supply management"</p>
+            <p className="text-slate-500 font-medium italic">"We are spearheading the province's digital transformation with a Smart Municipality platform engineered for total RA 9184 compliance. By unifying procurement and inventory into a single data hub, we ensure 100% audit readiness and peak logistical efficiency—defining the future of modern governance."</p>
           </div>
         </div>
 

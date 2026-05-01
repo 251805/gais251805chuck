@@ -176,9 +176,9 @@ export default function PurchaseRequestForm() {
     setLoading(true);
     try {
       await generatePurchaseRequestDocx(formData, items, gsoid);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Failed to generate DOCX. Please try again.');
+      setError(err.message || 'Failed to generate DOCX. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -211,7 +211,7 @@ export default function PurchaseRequestForm() {
 
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
           {/* Main Info Grid */}
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase">PR (Optional)</label>
               <input 
@@ -220,16 +220,6 @@ export default function PurchaseRequestForm() {
                 className="w-full p-3 bg-slate-100 rounded-xl border-2 border-transparent focus:border-pink-300 focus:bg-white placeholder:text-pink-300 transition-all font-mono"
                 value={formData.pr}
                 onChange={(e) => setFormData({ ...formData, pr: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase">Section</label>
-              <input 
-                type="text" 
-                className="w-full p-3 bg-slate-50 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all"
-                placeholder="e.g. IT Section"
-                value={formData.section}
-                onChange={(e) => setFormData({ ...formData, section: e.target.value })}
               />
             </div>
             <div className="space-y-1">
@@ -255,19 +245,31 @@ export default function PurchaseRequestForm() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className={`text-xs font-bold uppercase ${validationErrors.includes('department') ? 'text-red-500' : 'text-slate-500'}`}>
-                Department *
-              </label>
-              <select 
-                className={`w-full p-3 bg-slate-50 rounded-xl border-2 ${validationErrors.includes('department') ? 'border-red-300' : 'border-slate-100'} focus:border-blue-500 transition-all`}
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                required
-              >
-                <option value="">Select Department</option>
-            {DEPARTMENTS.map((dept, idx) => <option key={`dept-opt-${idx}`} value={dept}>{dept}</option>)}
-              </select>
+            <div className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <label className={`text-xs font-bold uppercase ${validationErrors.includes('department') ? 'text-red-500' : 'text-slate-500'}`}>
+                  Department *
+                </label>
+                <select 
+                  className={`w-full p-3 bg-slate-50 rounded-xl border-2 ${validationErrors.includes('department') ? 'border-red-300' : 'border-slate-100'} focus:border-blue-500 transition-all`}
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  required
+                >
+                  <option value="">Select Department</option>
+              {DEPARTMENTS.map((dept, idx) => <option key={`dept-opt-pr-${idx}`} value={dept}>{dept}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Section</label>
+                <input 
+                  type="text" 
+                  className="w-full p-3 bg-slate-50 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all"
+                  placeholder="e.g. Procurement Section"
+                  value={formData.section}
+                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -286,7 +288,7 @@ export default function PurchaseRequestForm() {
                   type="text" 
                   autoComplete="name"
                   className={`w-full p-3 bg-slate-50 rounded-xl border-2 ${validationErrors.includes('requested_by') ? 'border-red-300' : 'border-slate-100'} focus:border-blue-500 transition-all`}
-                  placeholder="e.g. Juan De La Cruz"
+                  placeholder="e.g. Jarold Lee"
                   value={formData.requested_by}
                   onChange={(e) => setFormData({ ...formData, requested_by: e.target.value })}
                   required
@@ -452,7 +454,7 @@ export default function PurchaseRequestForm() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="bg-red-50 text-red-600 p-4 font-bold text-center border-t border-red-100"
+              className="bg-red-50 text-red-600 p-4 font-bold text-center border-t border-red-100 whitespace-pre-wrap break-words"
             >
               {error}
             </motion.div>
@@ -477,7 +479,7 @@ export default function PurchaseRequestForm() {
                   className="flex items-center space-x-3 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-emerald-100 active:scale-95 flex-1 justify-center"
                 >
                   <Download size={22} />
-                  <span>DOWNLOAD OFFICIAL PR (DOCX)</span>
+                  <span>DOWNLOAD PR (DOCX)</span>
                 </button>
                 <button 
                   onClick={handleReset}

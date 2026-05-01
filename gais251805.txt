@@ -245,10 +245,10 @@ PR.docx
 RIS.docx
     
  
-Vercel (Deployment)
-gsopag2gais.vercel.app
-gsopag2gais-git-main-251805s-projects.vercel.app
-gsopag2gais-lvrmruqiv-251805s-projects.vercel.app
-prj_MqQagYmN1QRdOfCXvLsEEtaujia1
+Main Vercel (Deployment)
+prj_03csrKZXMOQAzbVSibckjvl9vTxE
+gais251805chuck.vercel.app
+gais251805chuck-git-main-251805s-projects.vercel.app
+gais251805chuck-jju8xsrxb-251805s-projects.vercel.app
 
 *****************************************

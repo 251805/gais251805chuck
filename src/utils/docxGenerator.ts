@@ -3,12 +3,14 @@ import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
 import JSZipUtils from 'jszip-utils';
 
+import { supabase } from '../lib/supabase';
+
 function loadFile(url: string, callback: (err: any, data: any) => void) {
     JSZipUtils.getBinaryContent(url, callback);
 }
 
 export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid: string) => {
-    const templatePath = "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/sign/gais251805/PR.docx?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YTZiNGIwNC05MGEyLTRiZjctYjIxZC00ZjJlYWU5MWE5MTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJnYWlzMjUxODA1L1BSLmRvY3giLCJpYXQiOjE3Nzc1NjA5NTgsImV4cCI6MTgwOTA5Njk1OH0.Tkut7HyHXLE9N_bGfuPf5HDMSh-T4Kv_ygWG0Bg4hqk";
+    const { data: { publicUrl: templatePath } } = supabase.storage.from('gais251805').getPublicUrl('PR.docx');
 
     return new Promise((resolve, reject) => {
         loadFile(templatePath, (error, content) => {
@@ -73,6 +75,68 @@ export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid
                     console.error("Docx Generation Error:", err);
                     reject(err);
                 }
+            }
+        });
+    });
+};
+
+export const generateRISDocx = async (data: any, items: any[], gsoid: string) => {
+    const { data: { publicUrl: templatePath } } = supabase.storage.from('gais251805').getPublicUrl('RIS.docx');
+
+    return new Promise((resolve, reject) => {
+        loadFile(templatePath, (error, content) => {
+            if (error) {
+                console.error("Failed to load RIS template:", error);
+                
+                if (error.status === 400 || error.status === 404 || error.message?.includes('400')) {
+                    reject(new Error("TEMPLATE NOT FOUND: The 'RIS.docx' file is missing or the 'gais251805' bucket is private in Supabase. Please ensure the bucket is public and the template is uploaded."));
+                } else {
+                    reject(new Error("Failed to generate DOCX. Please try again."));
+                }
+                return;
+            }
+
+            try {
+                const zip = new PizZip(content);
+                const doc = new Docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                    delimiters: { start: '{{', end: '}}' },
+                });
+
+                const dateObj = data.date ? new Date(data.date) : new Date();
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+
+                const docData = {
+                    DEPARTMENT: data.department?.toUpperCase() || '',
+                    DATE: formattedDate,
+                    REQUESTED_BY: data.requested_by?.toUpperCase() || '',
+                    GSOID: gsoid || '',
+                    STOCK_NO: items.map((i, idx) => i.stock_no || (idx + 1)).join('\n'),
+                    UNIT: items.map(i => i.unit || '').join('\n'),
+                    ITEM_DESCRIPTION: items.map(i => i.item_description || '').join('\n'),
+                    QTY: items.map(i => i.qty || '').join('\n'),
+                    REMARKS: items.map(i => i.remarks || '').join('\n'),
+                    SECTION: data.section || '',
+                };
+
+                doc.setData(docData);
+                doc.render();
+
+                const out = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                });
+
+                saveAs(out, `RIS_${gsoid || 'Official'}.docx`);
+                resolve(true);
+            } catch (err: any) {
+                console.error("Docx Generation Error (RIS):", err);
+                reject(err);
             }
         });
     });

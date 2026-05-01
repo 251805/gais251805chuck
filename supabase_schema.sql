@@ -46,10 +46,32 @@ CREATE TABLE inventory_master (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- RIS database as requested in gais251805.txt
+CREATE TABLE ris_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    gsoid TEXT NOT NULL,
+    department TEXT NOT NULL,
+    date DATE NOT NULL,
+    requested_by TEXT NOT NULL,
+    item_description TEXT NOT NULL,
+    unit TEXT NOT NULL,
+    qty NUMERIC NOT NULL DEFAULT 0,
+    section TEXT,
+    stock_no TEXT,
+    remarks TEXT,
+    status TEXT DEFAULT 'PENDING',
+    approved_by TEXT,
+    actual_received NUMERIC,
+    is_issued BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Enable RLS
 ALTER TABLE gsoid ENABLE ROW LEVEL SECURITY;
 ALTER TABLE line_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inventory_master ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ris_requests ENABLE ROW LEVEL SECURITY;
 
 -- Clear existing policies to avoid conflicts with older versions
 DO $$ 
@@ -60,6 +82,8 @@ BEGIN
     DROP POLICY IF EXISTS "Allow anon select from gsoid" ON gsoid;
     DROP POLICY IF EXISTS "Allow anon select from line_items" ON line_items;
     DROP POLICY IF EXISTS "Allow anon select from inventory_master" ON inventory_master;
+    DROP POLICY IF EXISTS "Public Insert RIS" ON ris_requests;
+    DROP POLICY IF EXISTS "Public Select RIS" ON ris_requests;
     
     -- GSOID Policies
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Insert GSOID') THEN
@@ -81,6 +105,14 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Select Inventory') THEN
         CREATE POLICY "Public Select Inventory" ON inventory_master FOR SELECT TO public USING (true);
     END IF;
+
+    -- RIS Policies
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Insert RIS') THEN
+        CREATE POLICY "Public Insert RIS" ON ris_requests FOR INSERT TO public WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Select RIS') THEN
+        CREATE POLICY "Public Select RIS" ON ris_requests FOR SELECT TO public USING (true);
+    END IF;
 END $$;
 
 -- Enable Realtime
@@ -100,4 +132,10 @@ DO $$
 BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE inventory_master;
 EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'inventory_master publication exists';
+END $$;
+
+DO $$
+BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE ris_requests;
+EXCEPTION WHEN OTHERS THEN RAISE NOTICE 'ris_requests publication exists';
 END $$;

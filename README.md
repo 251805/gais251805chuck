@@ -1,13 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-</head>
-<body>
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+# Run and deploy your AI Studio app
 
-</body>
-</html>
+This contains everything you need to run your app locally.
 
+View your app in AI Studio: https://ai.studio/apps/9294bae8-efe4-43ae-96ce-1041017860b6
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

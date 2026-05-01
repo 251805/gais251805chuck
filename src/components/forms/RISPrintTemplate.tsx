@@ -6,6 +6,7 @@ import { LINKS } from '../../constants';
 interface RISPrintTemplateProps {
   data: {
     department: string;
+    section?: string;
     date: string;
     requested_by: string;
     remarks?: string;
@@ -53,8 +54,8 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
           <div className="p-2 border-r-2 border-slate-900">
             <p className="text-[10px] font-bold">Division:</p>
             <p className="text-sm pl-4 uppercase">{data.department || '____________________'}</p>
-            <p className="text-[10px] font-bold mt-2">Office:</p>
-            <p className="text-sm pl-4 uppercase">____________________</p>
+            <p className="text-[10px] font-bold mt-2">Section:</p>
+            <p className="text-sm pl-4 uppercase">{data.section || '____________________'}</p>
           </div>
           <div className="p-2 space-y-1">
             <div className="flex justify-between">
@@ -92,9 +93,14 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
           <tbody className="text-xs">
             {safeItems.map((item, idx) => (
               <tr key={`ris-print-item-${item?.id || 'idx-' + idx}`} className="border-b border-slate-400 align-top">
-                <td className="border-r-2 border-slate-900 p-2 text-center text-[10px] font-mono">{idx + 1}</td>
+                <td className="border-r-2 border-slate-900 p-2 text-center text-[10px] font-mono">
+                  {item?.stock_no || idx + 1}
+                </td>
                 <td className="border-r-2 border-slate-900 p-2 text-center font-bold uppercase">{item?.unit}</td>
-                <td className="border-r-2 border-slate-900 p-2 leading-tight uppercase font-bold">{item?.item_description}</td>
+                <td className="border-r-2 border-slate-900 p-2 leading-tight uppercase font-bold text-[10px]">
+                  {item?.item_description}
+                  {item?.section && <span className="block text-[8px] text-slate-500 font-normal italic mt-0.5">Section: {item.section}</span>}
+                </td>
                 <td className="border-r-2 border-slate-900 p-2 text-center font-bold text-sm bg-blue-50/20">{item?.qty}</td>
                 <td className="border-r-2 border-slate-900 p-2 text-center">Yes</td>
                 <td className="border-r-2 border-slate-900 p-2 text-center bg-slate-100 italic">pending</td>
