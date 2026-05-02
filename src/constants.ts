@@ -32,7 +32,7 @@ export const DISCLAIMER = {
     },
     {
       title: "2. LIMITATION OF LIABILITY",
-      content: "Under no circumstances shall the Employee 251805 be held liable for any direct, indirect, or incidental damages, including but not limited to: Data Loss or Corruption (Users are responsible for maintaining independent backups of all data), System \"Bricking\" or Downtime (Technical failures resulting from service interruptions are beyond the Employee 251805 control), Service Quotas (This tool operates under Consumer-Tier Quotas), or any malicious misuse."
+      content: "Under no circumstances shall the Employee 251805 be held liable for any direct, indirect, or incidental damages, including but not limited to: Data Loss or Corruption (Users are responsible for maintaining independent backups of all data), System \"Bricking\" or Downtime (Technical failures resulting from service interruptions are beyond the Employee 251805 control), Service Quotas (This tool operates under Consumer-Tier Quotas. Usage is subject to daily execution limits), or any malicious misuse or equivalent activity."
     },
     {
       title: "3. THIRD-PARTY DEPENDENCIES",
@@ -41,9 +41,13 @@ export const DISCLAIMER = {
     {
       title: "4. INTELLECTUAL PROPERTY & MAINTENANCE",
       content: "The underlying logic and custom architecture remain the proprietary property of the Employee 251805. Access is granted under a Limited Usage License tied to the Employee 251805 active employment contract. Unauthorized attempts to modify or migrate the source code without the Employee 251805 oversight may result in permanent system failure."
+    },
+    {
+      title: "5. USER ACKNOWLEDGMENT",
+      content: "By clicking \"I accept and understand\" the User and the Company acknowledge these risks and agree to indemnify the Employee 251805 against all claims arising from the use of this experimental automation."
     }
   ],
-  footer: "By clicking \"I accept and understand\" the User and the Company acknowledge these risks and agree to indemnify the Employee 251805 against all claims arising from the use of this experimental automation."
+  footer: "Please review these terms carefully before proceeding."
 };
 
 export const LINKS = {

@@ -126,7 +126,9 @@ Municipal General Services Office
 Pambayang Kapisanan ng mga Barangay
 
 
-when choosing the role on the login page, it will only be viewed once every session
+after choosing the role on the login page, disclaimer will only be shown once every new session
+
+DISCLAIMER
 1. "AS-IS" PROVISION
 
 This automation tool is provided "AS-IS" for internal productivity purposes of the GSO, and this will not replace any previous, current or future systems. Employee 251805 makes no warranties, express or implied, regarding the continuous performance, accuracy, or reliability of the script.

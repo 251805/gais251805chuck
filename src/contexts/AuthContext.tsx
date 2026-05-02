@@ -5,8 +5,10 @@ interface AuthContextType {
   role: Role | null;
   setRole: (role: Role) => void;
   logout: () => void;
-  acceptedTerms: boolean;
-  setAcceptedTerms: (val: boolean) => void;
+  hasAcceptedDisclaimer: boolean;
+  setHasAcceptedDisclaimer: (val: boolean) => void;
+  showDisclaimer: boolean;
+  setShowDisclaimer: (val: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,27 +17,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRoleState] = useState<Role | null>(() => {
     return (sessionStorage.getItem('gso_role') as Role) || null;
   });
-  const [acceptedTerms, setAcceptedTermsState] = useState<boolean>(() => {
-    return sessionStorage.getItem('gso_terms_accepted') === 'true';
+  const [hasAcceptedDisclaimer, setHasAcceptedDisclaimerState] = useState<boolean>(() => {
+    return sessionStorage.getItem('gso_disclaimer_accepted') === 'true';
   });
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const setRole = (newRole: Role) => {
     setRoleState(newRole);
     sessionStorage.setItem('gso_role', newRole);
   };
 
-  const setAcceptedTerms = (val: boolean) => {
-    setAcceptedTermsState(val);
-    sessionStorage.setItem('gso_terms_accepted', val.toString());
+  const setHasAcceptedDisclaimer = (val: boolean) => {
+    setHasAcceptedDisclaimerState(val);
+    sessionStorage.setItem('gso_disclaimer_accepted', val.toString());
   };
 
   const logout = () => {
     setRoleState(null);
+    setHasAcceptedDisclaimerState(false);
+    setShowDisclaimer(false);
     sessionStorage.removeItem('gso_role');
+    sessionStorage.removeItem('gso_disclaimer_accepted');
   };
 
   return (
-    <AuthContext.Provider value={{ role, setRole, logout, acceptedTerms, setAcceptedTerms }}>
+    <AuthContext.Provider value={{ 
+      role, 
+      setRole, 
+      logout, 
+      hasAcceptedDisclaimer, 
+      setHasAcceptedDisclaimer,
+      showDisclaimer,
+      setShowDisclaimer
+    }}>
       {children}
     </AuthContext.Provider>
   );

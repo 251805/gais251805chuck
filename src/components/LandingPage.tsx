@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 import { Role } from '../types';
-import { DISCLAIMER, LINKS } from '../constants';
-import { ShieldCheck, User, Warehouse, ShieldAlert, LogIn } from 'lucide-react';
+import { LINKS } from '../constants';
+import { ShieldCheck, User, Warehouse, LogIn } from 'lucide-react';
 
 export default function LandingPage() {
-  const { setRole, acceptedTerms, setAcceptedTerms } = useAuth();
+  const { setRole, hasAcceptedDisclaimer, setHasAcceptedDisclaimer, setShowDisclaimer } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
 
-  const handleAcceptTerms = () => {
-    setAcceptedTerms(true);
-  };
-
   const handleRoleSelect = (role: Role) => {
+    // ROOT logic bypass is handled in credentials check, but for GUEST button:
     if (role === 'GUEST') {
       setRole('GUEST');
+      if (!hasAcceptedDisclaimer) {
+        setShowDisclaimer(true);
+      }
     } else {
       setShowLogin(true);
     }
@@ -29,63 +29,31 @@ export default function LandingPage() {
     const u = username.toLowerCase();
     const p = password.toLowerCase();
 
-    // Root check
+    // Role identification
+    let targetRole: Role | null = null;
+
     if ((u === 'lee') && (password === 'metallica' || password === 'METALLICA')) {
-      setRole('ROOT');
-      return;
+      targetRole = 'ROOT';
+    } else if ((u === 'dojie') && (p === 'mgdh1')) {
+      targetRole = 'ADMIN';
+    } else if ((u === 'warehouse') && (p === 'warez')) {
+      targetRole = 'WAREHOUSE';
     }
 
-    // Admin check
-    if ((u === 'dojie') && (p === 'mgdh1')) {
-      setRole('ADMIN');
-      return;
-    }
-
-    // Warehouse check
-    if ((u === 'warehouse') && (p === 'warez')) {
-      setRole('WAREHOUSE');
+    if (targetRole) {
+      setRole(targetRole);
+      // Skip logic for ROOT or if already accepted
+      if (targetRole === 'ROOT') {
+        setHasAcceptedDisclaimer(true);
+        setShowDisclaimer(false);
+      } else if (!hasAcceptedDisclaimer) {
+        setShowDisclaimer(true);
+      }
       return;
     }
 
     setError('Invalid credentials');
   };
-
-  if (!acceptedTerms) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl max-w-2xl w-full p-8 overflow-hidden text-white"
-        >
-          <div className="flex flex-col items-center mb-8 text-center">
-            <h1 className="text-2xl font-bold mb-4">{DISCLAIMER.title}</h1>
-          </div>
-
-          <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {DISCLAIMER.sections.map((section, idx) => (
-              <div key={`disclaimer-section-${idx}`}>
-                <h3 className="font-bold text-blue-400 border-b border-slate-700 pb-1 mb-2">{section.title}</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">{section.content}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-8 text-sm italic text-slate-400 border-t border-slate-700 pt-4">
-            {DISCLAIMER.footer}
-          </p>
-
-          <button
-            id="accept-terms-btn"
-            onClick={handleAcceptTerms}
-            className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
-          >
-            I accept and understand
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden font-sans">
@@ -105,13 +73,13 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                href="https://www.facebook.com/lgu.pagbilao.gso"
+                href={LINKS.FB_PAGE}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-28 h-28 rounded-full border-4 border-slate-700 shadow-2xl shadow-blue-500/20 overflow-hidden mx-auto md:mx-0 group hover:scale-105 transition-transform"
             >
               <img
-                src="https://github.com/251805/sirpacheck/blob/main/gso.png?raw=true"
+                src={LINKS.GSO_LOGO}
                 alt="GSO Logo"
                 className="w-full h-full object-cover"
               />
