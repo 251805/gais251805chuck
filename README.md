@@ -1,11 +1,9 @@
 <div align="center">
-<img width="475" height="475" alt="GHBanner" src="https://github.com/251805/sirpacheck/blob/main/18.png" />
+<img width="275" height="275" alt="GHBanner" src="https://github.com/251805/sirpacheck/blob/main/18.png" />
 </div>
 
 
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/9294bae8-efe4-43ae-96ce-1041017860b6
+App link https://gais251805chuck.vercel.app/
 
 ## Run Locally
 
