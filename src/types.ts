@@ -8,10 +8,13 @@ export interface GSOIDRecord {
   department: string;
   date: string;
   requested_by: string;
-  status: 'PENDING' | 'APPROVED' | 'COMPLETE' | 'DISCREPANCY';
+  status: 'PENDING' | 'APPROVED' | 'COMPLETE' | 'DISCREPANCY' | 'REJECTED';
   type: 'PR' | 'RIS';
   items: LineItem[];
   remarks?: string;
+  admin_remarks?: string;
+  is_linked?: boolean;
+  linked_id?: string;
   actual_items_received?: number;
   created_at: string;
 }

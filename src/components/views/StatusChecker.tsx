@@ -169,6 +169,20 @@ export default function StatusChecker() {
                   <span>{format(new Date(record.date), 'MMMM dd, yyyy')}</span>
                 </div>
               </div>
+              {record.remarks && (
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Your Remarks</p>
+                  <p className="text-sm font-medium text-slate-600 italic bg-white p-3 rounded-xl border border-slate-100 uppercase">{record.remarks}</p>
+                </div>
+              )}
+              {record.admin_remarks && (
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-blue-600">Admin Feedback</p>
+                  <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-tight ${record.status === 'DISCREPANCY' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+                    {record.admin_remarks.split(/^(?:PENDING|APPROVED|REJECTED)-/)[1] || record.admin_remarks}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-slate-50 rounded-2xl p-6">

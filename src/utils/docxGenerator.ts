@@ -36,6 +36,8 @@ export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid
                     year: 'numeric'
                 });
 
+                console.log('Generating PR Docx with status:', data.status);
+
                 const docData = {
                     DEPARTMENT: data.department?.toUpperCase() || '',
                     DATE: formattedDate,
@@ -45,6 +47,11 @@ export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid
                     BUDGET: data.budget || '',
                     GSOID: gsoid || '',
                     BAC: data.bac || '',
+                    // Status Placeholders
+                    STATUS: data.status === 'DISCREPANCY' ? 'REJECTED' : (data.status || ''),
+                    REASON: data.admin_remarks ? data.admin_remarks.split(/^(?:PENDING|APPROVED|REJECTED)-/)[1] || data.admin_remarks : '',
+                    PR_NUMBER: data.pr || '',
+                    APPROVAL_STATUS: (data.status === 'APPROVED' || data.status === 'COMPLETE') ? '✓' : (data.status === 'DISCREPANCY' ? '✗' : ''),
                     STOCK_NO: items.map(i => i.stock_no || '').join('\n'),
                     UNIT: items.map(i => i.unit || '').join('\n'),
                     ITEM_DESCRIPTION: items.map(i => i.item_description || '').join('\n'),
@@ -52,6 +59,8 @@ export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid
                     UNIT_COST: items.map(i => i.unit_cost || '').join('\n'),
                     TOTAL_COST: items.map(i => i.total_cost || '').join('\n'),
                     REMARKS: data.remarks || '',
+                    USER_REMARKS: data.remarks || '',
+                    ADMIN_REMARKS: data.admin_remarks || '',
                 };
 
                 doc.setData(docData);
@@ -111,16 +120,28 @@ export const generateRISDocx = async (data: any, items: any[], gsoid: string) =>
                     year: 'numeric'
                 });
 
+                console.log('Generating RIS Docx with status:', data.status);
+
                 const docData = {
                     DEPARTMENT: data.department?.toUpperCase() || '',
                     DATE: formattedDate,
+                    PR: data.pr || '',
+                    BUDGET: data.budget || '',
+                    BAC: data.bac || '',
+                    // Status Placeholders
+                    STATUS: data.status === 'DISCREPANCY' ? 'REJECTED' : (data.status || ''),
+                    REASON: data.admin_remarks ? data.admin_remarks.split(/^(?:PENDING|APPROVED|REJECTED)-/)[1] || data.admin_remarks : '',
+                    PR_NUMBER: data.pr || '',
+                    APPROVAL_STATUS: (data.status === 'APPROVED' || data.status === 'COMPLETE') ? '✓' : (data.status === 'DISCREPANCY' ? '✗' : ''),
                     REQUESTED_BY: data.requested_by?.toUpperCase() || '',
                     GSOID: gsoid || '',
                     STOCK_NO: items.map((i, idx) => i.stock_no || (idx + 1)).join('\n'),
                     UNIT: items.map(i => i.unit || '').join('\n'),
                     ITEM_DESCRIPTION: items.map(i => i.item_description || '').join('\n'),
                     QTY: items.map(i => i.qty || '').join('\n'),
-                    REMARKS: items.map(i => i.remarks || '').join('\n'),
+                    REMARKS: data.remarks || '',
+                    USER_REMARKS: data.remarks || '',
+                    ADMIN_REMARKS: data.admin_remarks || '',
                     SECTION: data.section || '',
                 };
 

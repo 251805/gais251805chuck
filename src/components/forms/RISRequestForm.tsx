@@ -23,7 +23,7 @@ export default function RISRequestForm() {
     remarks: ''
   });
 
-  const [items, setItems] = useState([{ id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, remarks: '', stock_no: '' }]);
+  const [items, setItems] = useState([{ id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, stock_no: '' }]);
 
   useEffect(() => {
     async function initGsoid() {
@@ -39,7 +39,7 @@ export default function RISRequestForm() {
     setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const addLineItem = () => setItems([...items, { id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, remarks: '', stock_no: '' }]);
+  const addLineItem = () => setItems([...items, { id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, stock_no: '' }]);
   const removeLineItem = (id: string) => items.length > 1 && setItems(items.filter(i => i.id !== id));
 
   const handleSearchDR = async () => {
@@ -110,16 +110,35 @@ export default function RISRequestForm() {
 
     const validItems = items.filter(i => i.item_description && i.unit && i.qty);
 
-    if (!formData.department || !formData.requested_by || validItems.length === 0) {
+    if (!formData.department || !formData.requested_by || !formData.remarks || validItems.length === 0) {
       setError('Please fill all mandatory fields (*) and add at least one item');
       setLoading(false);
       return;
     }
 
     try {
-      // Save items to the new ris_requests table
-      const risRecords = validItems.map(item => ({
-        gsoid,
+      console.log('DEBUG: Submitting RIS Request...', { gsoid, formData, validItems });
+      
+      // 1. Insert GSOID Record (Master)
+      const { error: gsoidError } = await supabase.from('gsoid').insert({
+        id: gsoid,
+        department: formData.department,
+        date: formData.date,
+        requested_by: formData.requested_by,
+        remarks: formData.remarks,
+        type: 'RIS',
+        status: 'PENDING'
+      });
+
+      if (gsoidError) {
+        console.error('DEBUG: gsoid Insert Error (RIS):', gsoidError);
+        throw gsoidError;
+      }
+      console.log('DEBUG: GSOID inserted successfully');
+
+      // 2. Insert into ris_requests table (Dedicated for RIS tracking and stock deduction)
+      const risItemsToInsert = validItems.map(item => ({
+        gsoid: gsoid,
         department: formData.department,
         date: formData.date,
         requested_by: formData.requested_by,
@@ -128,13 +147,34 @@ export default function RISRequestForm() {
         qty: Number(item.qty) || 0,
         section: formData.section,
         stock_no: item.stock_no,
-        remarks: item.remarks || formData.remarks,
-        status: 'PENDING'
+        remarks: formData.remarks,
+        status: 'PENDING',
+        is_issued: false
       }));
 
-      const { error: itemsError } = await supabase.from('ris_requests').insert(risRecords);
+      console.log('DEBUG: Inserting into ris_requests...', risItemsToInsert);
+      const { error: risError } = await supabase.from('ris_requests').insert(risItemsToInsert);
+      if (risError) {
+        console.error('DEBUG: ris_requests Insert Error:', risError);
+        throw risError;
+      }
+      console.log('DEBUG: ris_requests inserted successfully');
+
+      // 3. Also insert into line_items for backward compatibility with general views
+      const lineItemsToInsert = validItems.map(item => ({
+        gsoid_id: gsoid,
+        section: formData.section,
+        stock_no: item.stock_no,
+        unit: item.unit,
+        item_description: item.item_description,
+        qty: Number(item.qty) || 0,
+        unit_cost: 0,
+        total_cost: 0
+      }));
+
+      const { error: itemsError } = await supabase.from('line_items').insert(lineItemsToInsert);
       if (itemsError) {
-        console.error('RIS Insert Error:', itemsError);
+        console.error('Line Items Insert Error (RIS):', itemsError);
         throw itemsError;
       }
 
@@ -150,10 +190,6 @@ export default function RISRequestForm() {
       console.error('Submission Error:', err);
       
       let errorMessage = err.message || 'An error occurred during submission. Please check connection.';
-      if (errorMessage.includes('schema cache')) {
-        errorMessage = "DATABASE SETUP REQUIRED: The 'ris_requests' table does not exist in Supabase! Please create it with columns: id (uuid), gsoid (text), department (text), date (text), requested_by (text), item_description (text), unit (text), qty (numeric), section (text), stock_no (text), remarks (text), status (text).";
-      }
-
       setError(errorMessage);
       setLoading(false);
       // Scroll to error message
@@ -170,7 +206,11 @@ export default function RISRequestForm() {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      await generateRISDocx(formData, items, gsoid);
+      await generateRISDocx({
+        ...formData,
+        status: 'PENDING',
+        admin_remarks: ''
+      }, items, gsoid);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to generate DOCX. Please try again.');
@@ -182,7 +222,7 @@ export default function RISRequestForm() {
   const handleReset = async () => {
     setSuccess(false);
     setSearchGsoid('');
-    setItems([{ id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, remarks: '', stock_no: '' }]);
+    setItems([{ id: crypto.randomUUID(), unit: '', item_description: '', qty: 1, stock_no: '' }]);
     setFormData({ ...formData, requested_by: '', remarks: '' });
     const newId = await generateGSOID();
     setGsoid(newId);
@@ -192,7 +232,15 @@ export default function RISRequestForm() {
     <>
       <div className="hidden print:block">
         <RISPrintTemplate 
-          data={formData} 
+          data={{
+            department: formData.department,
+            section: formData.section,
+            date: formData.date,
+            requested_by: formData.requested_by,
+            remarks: formData.remarks,
+            status: 'PENDING',
+            admin_remarks: ''
+          }} 
           items={items} 
           gsoid={gsoid} 
         />
@@ -286,6 +334,21 @@ export default function RISRequestForm() {
             </div>
           </div>
 
+          {/* Purpose / Remarks */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase flex items-center justify-between">
+              <span>Purpose / User Remarks *</span>
+              <span className="text-[10px] text-emerald-600 normal-case italic">Required for RIS</span>
+            </label>
+            <textarea 
+              placeholder="Enter the purpose of this request (e.g. Office consumption / OPERATIONS)..."
+              className="w-full p-3 bg-slate-50 rounded-xl border-2 border-slate-100 focus:border-emerald-500 transition-all text-sm h-24 resize-none"
+              value={formData.remarks}
+              onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+              required
+            />
+          </div>
+
           <div className="space-y-4">
              <h3 className="text-sm font-bold text-slate-800 border-b pb-2 flex items-center space-x-2">
               <Package size={16} className="text-emerald-500" />
@@ -300,7 +363,6 @@ export default function RISRequestForm() {
                     <th className="px-4 py-3">Description *</th>
                     <th className="px-4 py-3 w-32">Unit *</th>
                     <th className="px-4 py-3 w-24">Qty *</th>
-                    <th className="px-4 py-3 w-40">Remarks</th>
                     <th className="px-4 py-3 w-16"></th>
                   </tr>
                 </thead>
@@ -346,15 +408,6 @@ export default function RISRequestForm() {
                       required
                     />
                   </td>
-                      <td className="px-2 py-3">
-                        <input 
-                          type="text"
-                          placeholder="Remarks"
-                          className="w-full p-2 bg-white rounded-lg border border-slate-200 text-sm"
-                          value={item.remarks}
-                          onChange={(e) => updateItem(item.id, 'remarks', e.target.value)}
-                        />
-                      </td>
                       <td className="px-2 py-3 text-right">
                         {items.length > 1 && (
                           <button 

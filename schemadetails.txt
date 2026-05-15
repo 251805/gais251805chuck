@@ -1,0 +1,275 @@
+Full database schema details (current project)
+
+Below are the tables detected across your database schemas, including column types, PKs, FKs, and whether RLS is enabled.
+auth schema
+auth.users (RLS: ✅)
+
+    Primary key: id (uuid)
+    Columns (high level): instance_id (uuid), aud, role, email, encrypted_password, email_confirmed_at, invited_at, created_at, updated_at, auth tokens/flags (e.g. confirmation_token, recovery_token, is_super_admin, is_anonymous, etc.)
+    Generated column: confirmed_at = LEAST(email_confirmed_at, phone_confirmed_at)
+    Constraints: email_change_confirm_status check range
+    Foreign keys: references:
+        auth.webauthn_challenges.user_id → auth.users.id
+        auth.mfa_factors.user_id → auth.users.id
+        auth.identities.user_id → auth.users.id
+        auth.sessions.user_id → auth.users.id
+        auth.webauthn_credentials.user_id → auth.users.id
+        auth.oauth_consents.user_id → auth.users.id
+        auth.oauth_authorizations.user_id → auth.users.id
+        auth.one_time_tokens.user_id → auth.users.id
+
+auth.refresh_tokens (RLS: ✅)
+
+    PK: id (bigint)
+    Columns: token (unique), user_id, revoked, session_id, parent, timestamps
+    FK: session_id → auth.sessions.id
+
+auth.instances (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: uuid, raw_base_config, created_at, updated_at
+
+auth.audit_log_entries (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: payload (json), ip_address, timestamps
+
+auth.schema_migrations (RLS: ✅)
+
+    PK: version (varchar)
+
+auth.identities (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: provider_id, user_id, provider, identity_data (jsonb)
+    Generated column: email = lower(identity_data->>'email')
+    FK: user_id → auth.users.id
+
+auth.sessions (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: user_id, factor_id, aal (enum), not_after, refreshed_at, user_agent, ip, OAuth fields, refresh token fields, scopes
+    FKs:
+        user_id → auth.users.id
+        oauth_client_id → auth.oauth_clients.id
+        refresh_token relation via auth.refresh_tokens.session_id → auth.sessions.id
+        MFA AMR claims session FK
+
+auth.mfa_factors (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: user_id, factor_type (enum), status (enum), secret, phone, web_authn_*, timestamps
+    Constraints: last_challenged_at unique
+    FKs: user_id → auth.users.id*_
+
+auth.mfa_challenges (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: factor_id, challenge_type? (stored in metadata), session_data, OTP fields, timestamps
+    FK: factor_id → auth.mfa_factors.id
+
+auth.mfa_amr_claims (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: session_id, authentication_method
+    FK: session_id → auth.sessions.id
+
+auth.sso_providers (RLS: ✅)
+
+    PK: id
+    Columns: resource_id, disabled, timestamps
+    FKs: links to SAML relay/app config tables
+
+auth.sso_domains (RLS: ✅)
+
+    PK: id
+    Columns: sso_provider_id, domain
+    FK: sso_provider_id → auth.sso_providers.id
+
+auth.saml_providers (RLS: ✅)
+
+    PK: id
+    Columns: sso_provider_id, entity_id (unique), metadata fields (XML/URL), mapping jsonb
+    FK: sso_provider_id → auth.sso_providers.id
+
+auth.saml_relay_states (RLS: ✅)
+
+    PK: id
+    Columns: sso_provider_id, request_id, for_email, redirect_to, flow_state_id, timestamps
+    FKs: sso_provider_id → auth.sso_providers.id, flow_state_id → auth.flow_state.id
+
+auth.flow_state (RLS: ✅)
+
+    PK: id
+    Columns: user_id, OAuth/PKCE fields, provider tokens, invite linking fields, timestamps, etc.
+    FK: referenced from auth.saml_relay_states.flow_state_id
+
+auth.one_time_tokens (RLS: ✅)
+
+    PK: id
+    Columns: token_type (enum), token_hash, relates_to, timestamps
+    FK: user_id → auth.users.id
+
+auth.oauth_clients (RLS: ❌)
+
+    PK: id
+    Columns: client_secret_hash, redirect/grant settings, client metadata, timestamps
+    FKs: referenced by sessions/consents/authorizations
+
+auth.oauth_authorizations (RLS: ❌)
+
+    PK: id
+    Columns: authorization_id (unique), client_id, user_id, redirect_uri, scope/state, code challenge, status enum, authorization_code (unique), timestamps
+    FKs: client_id → auth.oauth_clients.id, user_id → auth.users.id
+
+auth.oauth_consents (RLS: ❌)
+
+    PK: id
+    Columns: user_id, client_id, scopes, granted/revoked timestamps
+    FKs: client_id → auth.oauth_clients.id, user_id → auth.users.id
+
+auth.oauth_client_states (RLS: ❌)
+
+    PK: id
+    Columns: provider_type, code_verifier, timestamps
+
+auth.custom_oauth_providers (RLS: ❌)
+
+    PK: id
+    Columns: provider config fields, identifier (unique), secrets, scopes arrays, endpoints, caching, timestamps
+
+auth.webauthn_credentials (RLS: ❌)
+
+    PK: id
+    Columns: user_id, credential_id, public_key, sign_count, transports, backup flags, timestamps
+    FK: user_id → auth.users.id
+
+auth.webauthn_challenges (RLS: ❌)
+
+    PK: id
+    Columns: user_id, challenge_type, session_data, expires_at
+    FK: user_id → auth.users.id
+
+vault schema
+vault.secrets (RLS: ❌)
+
+    PK: id (uuid)
+    Columns: name, description, encrypted secret, key_id, nonce, timestamps
+    Note: Designed for storing sensitive info on disk.
+
+storage schema
+storage.migrations (RLS: ✅)
+
+    PK: id (int)
+    Columns: name (unique), hash, executed_at
+
+storage.buckets (RLS: ✅)
+
+    PK: id (text)
+    Columns: name, created_at/updated_at, public flag, mime limits, owner_id, type (buckettype enum), etc.
+    FKs: referenced by:
+        multipart uploads parts/buckets
+        objects bucket
+
+storage.objects (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: bucket_id, name, metadata jsonb, path_tokens (generated from name), version, owner_id, user_metadata, timestamps
+    FK: bucket_id → storage.buckets.id
+
+storage.s3_multipart_uploads (RLS: ✅)
+
+    PK: id (text)
+    Columns: bucket_id, key, upload_signature, owner fields, metadata jsonb
+
+storage.s3_multipart_uploads_parts (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: upload_id, part_number, size, etag, bucket_id, timestamps
+    FKs: upload_id and bucket_id back to multipart + buckets
+
+storage.buckets_analytics (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: name, format (ICEBERG), type buckettype, soft delete deleted_at
+
+storage.buckets_vectors (RLS: ✅)
+
+    PK: id (text)
+    Columns: type buckettype, timestamps
+    FK: referenced by storage.vector_indexes
+
+storage.vector_indexes (RLS: ✅)
+
+    PK: id (text)
+    Columns: bucket_id, index metadata (dimension, distance_metric, metadata_configuration), timestamps
+    FK: bucket_id → storage.buckets_vectors.id
+
+realtime schema
+realtime.schema_migrations (RLS: ❌)
+
+    PK: version (bigint)
+    Columns: inserted_at
+
+realtime.subscription (RLS: ❌)
+
+    PK: id (bigint identity)
+    Columns: subscription_id, entity (regclass), filters (array), claims jsonb, generated claims_role, timestamps, action filter
+
+realtime.messages (RLS: ✅)
+
+    PK: (inserted_at, id)
+    Columns: topic, extension, payload, event, private, updated_at, inserted_at, id (uuid)
+
+Partitioned message tables
+
+    realtime.messages_2026_05_11 … realtime.messages_2026_05_17
+    RLS: ❌ (per introspection)
+    Same shape: topic, extension, payload, event, private, timestamps, id
+
+public schema (your app tables)
+public.inventory_master (RLS: ✅)
+
+    PK: id (uuid)
+    Columns:
+        item_description (text, unique)
+        unit (text)
+        quantity_on_hand (numeric, check >= 0)
+        unit_cost (numeric)
+        created_at, updated_at
+
+public.gsoid (RLS: ✅)
+
+    PK: id (text)
+    Columns: pr, budget, bac, department, date, requested_by, status (default PENDING), type, remarks, admin_remarks, link fields (is_linked, linked_id), timestamps
+    FKs referenced by:
+        public.ris_requests.gsoid → public.gsoid.id
+        public.delivery_receipts.gsoid → public.gsoid.id
+        public.line_items.gsoid_id → public.gsoid.id
+
+public.ris_requests (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: gsoid (text), department, date, requested_by, item_description, unit, qty (default 0), section, stock_no, remarks, status (default PENDING), approved_by, actual_received, is_issued (default false), timestamps
+    FK: gsoid → public.gsoid.id
+
+public.line_items (RLS: ✅)
+
+    PK: id (uuid, default gen_random_uuid())
+    Columns: gsoid_id (text), section, stock_no, unit, item_description, qty, unit_cost, total_cost, created_at
+    FK: gsoid_id → public.gsoid.id
+
+public.delivery_receipts (RLS: ✅)
+
+    PK: id (uuid)
+    Columns: gsoid (text), actual_items_received (numeric), inspection_status (check enum-like values: COMPLETE or DISCREPANCY), warehouse_remarks, inspected_by, inspection_date, dr_number (unique), created_at
+    FK: gsoid → public.gsoid.id
+
+
+
+https://jarfhkjcewjjdghwlzna.supabase.co
+sb_publishable_DPzwfn0aqLKEXGlkLv6i0g_QWId5lEz
+postgresql://postgres:[YOUR-PASSWORD]@db.jarfhkjcewjjdghwlzna.supabase.co:5432/postgres
+supabase login
+supabase init
+supabase link --project-ref jarfhkjcewjjdghwlzna

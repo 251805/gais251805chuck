@@ -9,7 +9,9 @@ import {
   LogOut,
   ChevronRight,
   TrendingDown,
-  Search
+  Search,
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LINKS } from '../../constants';
@@ -25,7 +27,9 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const navItems = [
     { id: 'pr', label: 'Purchase Request', icon: ClipboardList, roles: ['GUEST', 'ADMIN', 'ROOT'] },
     { id: 'ris', label: 'RIS Request', icon: TrendingDown, roles: ['GUEST', 'ADMIN', 'WAREHOUSE', 'ROOT'] },
+    { id: 'delivery', label: 'Delivery Receipt', icon: FileText, roles: ['WAREHOUSE', 'ADMIN', 'ROOT'] },
     { id: 'status', label: 'Track Request', icon: Search, roles: ['GUEST', 'ADMIN', 'WAREHOUSE', 'ROOT'] },
+    { id: 'approval', label: 'Admin Approval', icon: ShieldCheck, roles: ['ADMIN', 'ROOT'] },
     { id: 'inventory', label: 'Inventory Peak', icon: Package, roles: ['GUEST', 'ADMIN', 'WAREHOUSE', 'ROOT'] },
   ];
 

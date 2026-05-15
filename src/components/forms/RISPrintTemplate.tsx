@@ -10,6 +10,11 @@ interface RISPrintTemplateProps {
     date: string;
     requested_by: string;
     remarks?: string;
+    admin_remarks?: string;
+    pr?: string;
+    budget?: string;
+    bac?: string;
+    status?: string;
   };
   items: Partial<LineItem>[];
   gsoid: string;
@@ -17,6 +22,11 @@ interface RISPrintTemplateProps {
 
 export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTemplateProps) {
   const safeItems = Array.isArray(items) ? items : [];
+  
+  const isApproved = data.status === 'APPROVED' || data.status === 'COMPLETE';
+  const isRejected = data.status === 'REJECTED' || data.status === 'DISCREPANCY';
+  const prDisplay = data.pr && data.pr.trim() !== '' ? data.pr : (isRejected ? 'VOID' : (isApproved ? 'APPROVED' : ''));
+
   // Fill empty rows to maintain form height (usually 12 rows total)
   const emptyRowsNeeded = Math.max(0, 12 - safeItems.length);
   const emptyRows = Array(emptyRowsNeeded).fill(null);
@@ -33,7 +43,7 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
           <p className="text-[10px] italic">Republic of the Philippines</p>
           <p className="text-sm font-bold uppercase">PROVINCE OF QUEZON</p>
           <p className="text-[10px] uppercase">Municipality of Pagbilao</p>
-          <p className="text-xs font-bold mt-1">{data.department || 'GOVERNMENT SERVICE OFFICE'}</p>
+          <p className="text-xs font-bold mt-1">{data.department || '____________________'}</p>
         </div>
       </div>
 
@@ -44,9 +54,17 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
             <p className="text-[10px] font-bold">Entity Name:</p>
             <p className="text-sm font-bold pl-4 uppercase">{data.department || '____________________'}</p>
           </div>
-          <div className="p-2">
-            <p className="text-[10px] font-bold">Fund Cluster:</p>
-            <p className="text-sm pl-4 underline decoration-dotted">General Fund</p>
+          <div className="p-2 flex flex-col justify-between">
+            <div>
+              <p className="text-[10px] font-bold">Fund Cluster:</p>
+              <p className="text-sm pl-4 underline decoration-dotted">{data.budget || ''}</p>
+            </div>
+            {data.bac && (
+              <div className="mt-1">
+                <p className="text-[8px] font-bold uppercase text-slate-400">BAC Ref:</p>
+                <p className="text-[10px] font-mono font-bold tracking-wider">{data.bac}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -63,12 +81,14 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
               <span className="text-sm border-b border-slate-900 flex-1 ml-2 text-center font-mono">2024-XX</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[10px] font-bold">RIS No.:</span>
-              <span className="text-sm border-b border-slate-900 flex-1 ml-2 font-bold italic">PENDING</span>
+              <span className="text-[10px] font-bold">RIS No. / PR:</span>
+              <span className={`text-sm border-b border-slate-900 flex-1 ml-2 font-bold italic ${isRejected ? 'text-red-500 line-through' : (isApproved ? 'text-blue-600' : '')}`}>
+                {prDisplay}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[10px] font-bold">Date:</span>
-              <span className="text-sm border-b border-slate-900 flex-1 ml-2">{format(new Date(data.date), 'MMMM dd, yyyy')}</span>
+              <span className="text-sm border-b border-slate-900 flex-1 ml-2">{data.date ? format(new Date(data.date), 'MMMM dd, yyyy') : format(new Date(), 'MMMM dd, yyyy')}</span>
             </div>
           </div>
         </div>
@@ -102,9 +122,11 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
                   {item?.section && <span className="block text-[8px] text-slate-500 font-normal italic mt-0.5">Section: {item.section}</span>}
                 </td>
                 <td className="border-r-2 border-slate-900 p-2 text-center font-bold text-sm bg-blue-50/20">{item?.qty}</td>
-                <td className="border-r-2 border-slate-900 p-2 text-center">Yes</td>
-                <td className="border-r-2 border-slate-900 p-2 text-center bg-slate-100 italic">pending</td>
-                <td className="p-2 bg-slate-100"></td>
+                <td className="border-r-2 border-slate-900 p-2 text-center uppercase font-bold">{isApproved ? 'Yes' : (isRejected ? 'No' : '-')}</td>
+                <td className="border-r-2 border-slate-900 p-2 text-center bg-slate-100 italic">
+                  {isApproved ? item?.qty : (isRejected ? '0' : 'pending')}
+                </td>
+                <td className="p-2 bg-slate-100 text-[8px]">{isRejected ? (data.remarks || 'DISCREPANCY') : ''}</td>
               </tr>
             ))}
             {emptyRows.map((_, idx) => (
@@ -122,9 +144,17 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
         </table>
 
         {/* Purpose */}
-        <div className="p-4 border-t-2 border-slate-900">
-          <p className="text-[10px] font-bold">Purpose:</p>
-          <p className="text-sm pl-4 italic min-h-[40px] uppercase font-bold">{data.remarks || 'OFFICE CONSUMPTION / OPERATIONS'}</p>
+        <div className="p-4 border-t-2 border-slate-900 space-y-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-tighter text-slate-500">User Remarks / Purpose:</p>
+            <p className="text-sm pl-4 italic uppercase font-bold">{data.remarks || 'OFFICE CONSUMPTION / OPERATIONS'}</p>
+          </div>
+          <div className="p-2 border-t border-slate-100">
+            <p className="text-[10px] font-bold uppercase">STATUS</p>
+            <p className="text-sm pl-4">{data.status || 'PENDING'}</p>
+            <p className="text-[10px] font-bold uppercase mt-2">REASON</p>
+            <p className="text-sm pl-4">{data.admin_remarks || ''}</p>
+          </div>
         </div>
 
         {/* Signatories Grid */}
@@ -136,18 +166,20 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
           </div>
           <div className="border-r-2 border-slate-900 flex flex-col relative">
             <div className="p-1 border-b border-slate-900 font-bold">Approved by:</div>
-            <img 
-              src={LINKS.SIGNATURE} 
-              alt="Signature" 
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 w-20 h-10 object-contain opacity-70 pointer-events-none" 
-              referrerPolicy="no-referrer"
-            />
+            {(isApproved || data.bac) && (
+              <img 
+                src={LINKS.SIGNATURE} 
+                alt="Signature" 
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 w-20 h-10 object-contain opacity-70 pointer-events-none" 
+                referrerPolicy="no-referrer"
+              />
+            )}
             <div className="mt-8 px-1 text-center font-bold uppercase border-b border-slate-400 mx-2 relative z-10">____________________</div>
             <div className="text-center font-bold uppercase py-1">GSO Head</div>
           </div>
           <div className="border-r-2 border-slate-900 flex flex-col">
             <div className="p-1 border-b border-slate-900 font-bold">Issued by:</div>
-            <div className="mt-8 px-1 text-center font-bold uppercase border-b border-slate-400 mx-2">____________________</div>
+            <div className="mt-8 px-1 text-center font-bold uppercase border-b border-slate-400 mx-2">{isApproved ? 'READY FOR RELEASE' : '____________________'}</div>
             <div className="text-center font-bold uppercase py-1">Supply Officer</div>
           </div>
           <div className="flex flex-col">
@@ -159,7 +191,7 @@ export default function RISPrintTemplate({ data, items = [], gsoid }: RISPrintTe
       </div>
 
       <div className="mt-4 flex justify-between items-end italic text-[8px] text-slate-400">
-        <div>System Tracker GSOID: {gsoid} | Auto-deduct inventory on approval</div>
+        <div>System Tracker GSOID: {gsoid || 'N/A'} | {isApproved ? 'Stock Deducted' : 'Pending Verification'}</div>
         <div>{format(new Date(), 'PPpp')}</div>
       </div>
     </div>

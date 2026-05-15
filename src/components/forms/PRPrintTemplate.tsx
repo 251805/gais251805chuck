@@ -12,7 +12,9 @@ interface PRPrintTemplateProps {
     date: string;
     requested_by: string;
     remarks?: string;
+    admin_remarks?: string;
     section?: string;
+    status?: string;
     stock_no?: string;
   };
   items: Partial<LineItem>[];
@@ -24,6 +26,10 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
   const safeItems = Array.isArray(items) ? items : [];
   const grandTotal = safeItems.reduce((sum, item) => sum + (item?.total_cost || 0), 0);
   
+  const isApproved = data.status === 'APPROVED' || data.status === 'COMPLETE';
+  const isRejected = data.status === 'REJECTED' || data.status === 'DISCREPANCY';
+  const prDisplay = data.pr && data.pr.trim() !== '' ? data.pr : (isRejected ? 'VOID' : (isApproved ? 'APPROVED' : ''));
+
   // Fill empty rows to maintain form height (usually 15 rows total)
   const emptyRowsNeeded = Math.max(0, 15 - safeItems.length);
   const emptyRows = Array(emptyRowsNeeded).fill(null);
@@ -53,7 +59,7 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
           </div>
           <div className="p-2">
             <p className="text-[10px] font-bold">Fund Cluster:</p>
-            <p className="text-sm pl-4 underline decoration-dotted">{data.budget || '____________________'}</p>
+            <p className="text-sm pl-4 underline decoration-dotted">{data.budget || ''}</p>
           </div>
         </div>
 
@@ -67,7 +73,9 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
           <div className="p-2 space-y-1">
             <div className="flex justify-between">
               <span className="text-[10px] font-bold">PR No.:</span>
-              <span className="text-sm font-bold border-b border-slate-900 flex-1 ml-2">{data.pr || 'PENDING'}</span>
+              <span className={`text-sm font-bold border-b border-slate-900 flex-1 ml-2 ${isRejected ? 'text-red-600 line-through' : (isApproved ? 'text-blue-700' : '')}`}>
+                {prDisplay}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[10px] font-bold">Responsibility Center Code:</span>
@@ -75,7 +83,7 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
             </div>
             <div className="flex justify-between">
               <span className="text-[10px] font-bold">Date:</span>
-              <span className="text-sm border-b border-slate-900 flex-1 ml-2">{format(new Date(data.date), 'MMMM dd, yyyy')}</span>
+              <span className="text-sm border-b border-slate-900 flex-1 ml-2">{data.date ? format(new Date(data.date), 'MMMM dd, yyyy') : format(new Date(), 'MMMM dd, yyyy')}</span>
             </div>
           </div>
         </div>
@@ -125,9 +133,17 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
         </table>
 
         {/* Purpose */}
-        <div className="p-4 border-t-2 border-slate-900">
-          <p className="text-[10px] font-bold">Purpose:</p>
-          <p className="text-sm pl-4 italic min-h-[60px]">{data.remarks || 'Supply replenishment for operational use.'}</p>
+        <div className="p-4 border-t-2 border-slate-900 space-y-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-tighter text-slate-500">User Remarks / Purpose:</p>
+            <p className="text-sm pl-4 italic uppercase font-bold">{data.remarks || 'SUPPLY REPLENISHMENT FOR OPERATIONAL USE'}</p>
+          </div>
+          {data.admin_remarks && (
+            <div className="pt-2 border-t border-slate-100 italic">
+              <p className="text-[10px] font-bold uppercase tracking-tighter text-blue-600">Admin Feedback:</p>
+              <p className="text-sm pl-4 font-bold text-slate-700">{data.admin_remarks.split(/^(?:PENDING|APPROVED|REJECTED)-/)[1] || data.admin_remarks}</p>
+            </div>
+          )}
         </div>
 
         {/* Signatories */}
@@ -148,7 +164,7 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
               <p className="text-[10px] font-bold">Approved by:</p>
             </div>
             <div className="p-8 flex-1 flex flex-col items-center justify-end relative">
-              {(isOfficial || data.bac) && (
+              {(isOfficial || (data.bac && data.bac.trim() !== '')) && (
                 <img 
                   src={LINKS.SIGNATURE} 
                   alt="Signature" 
@@ -168,7 +184,7 @@ export default function PRPrintTemplate({ data, items = [], gsoid, isOfficial = 
       {/* Footer Info */}
       <div className="mt-auto pt-8 flex justify-between items-end">
         <div className="text-[8px] text-slate-400 italic">
-          System Generated GSOID: {gsoid} | Generated on {format(new Date(), 'PPpp')}
+          System Generated GSOID: {gsoid || 'N/A'} | Generated on {format(new Date(), 'PPpp')}
         </div>
         {!isOfficial && (
           <div className="border border-red-500 text-red-500 text-[10px] font-bold px-4 py-2 rotate-[-5deg] opacity-50 uppercase">

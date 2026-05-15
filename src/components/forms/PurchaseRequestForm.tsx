@@ -175,7 +175,11 @@ export default function PurchaseRequestForm() {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      await generatePurchaseRequestDocx(formData, items, gsoid);
+      await generatePurchaseRequestDocx({
+        ...formData,
+        status: 'PENDING',
+        admin_remarks: ''
+      }, items, gsoid);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to generate DOCX. Please try again.');
@@ -189,7 +193,11 @@ export default function PurchaseRequestForm() {
       {/* Printable Template (Hidden on Screen) */}
       <div className="hidden print:block">
         <PRPrintTemplate 
-          data={formData} 
+          data={{
+            ...formData,
+            status: 'PENDING',
+            admin_remarks: ''
+          }} 
           items={items} 
           gsoid={gsoid} 
         />
@@ -217,7 +225,7 @@ export default function PurchaseRequestForm() {
               <input 
                 type="text" 
                 placeholder="PLEASE LEAVE THIS BLANK"
-                className="w-full p-3 bg-slate-100 rounded-xl border-2 border-transparent focus:border-pink-300 focus:bg-white placeholder:text-pink-300 transition-all font-mono"
+                className="w-full p-3 bg-pink-50/30 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:bg-white placeholder:text-pink-400 transition-all font-mono text-pink-700"
                 value={formData.pr}
                 onChange={(e) => setFormData({ ...formData, pr: e.target.value })}
               />
@@ -227,7 +235,7 @@ export default function PurchaseRequestForm() {
               <input 
                 type="text" 
                 placeholder="PLEASE LEAVE THIS BLANK"
-                className="w-full p-3 bg-slate-100 rounded-xl border-2 border-transparent focus:border-pink-300 focus:bg-white placeholder:text-pink-300 transition-all font-mono"
+                className="w-full p-3 bg-pink-50/30 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:bg-white placeholder:text-pink-400 transition-all font-mono text-pink-700"
                 value={formData.budget}
                 onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
               />
@@ -237,7 +245,7 @@ export default function PurchaseRequestForm() {
               <input 
                 type="text" 
                 placeholder="PLEASE LEAVE THIS BLANK"
-                className="w-full p-3 bg-slate-100 rounded-xl border-2 border-transparent focus:border-pink-300 focus:bg-white placeholder:text-pink-300 transition-all font-mono"
+                className="w-full p-3 bg-pink-50/30 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:bg-white placeholder:text-pink-400 transition-all font-mono text-pink-700"
                 value={formData.bac}
                 onChange={(e) => setFormData({ ...formData, bac: e.target.value })}
               />
@@ -265,7 +273,7 @@ export default function PurchaseRequestForm() {
                 <input 
                   type="text" 
                   className="w-full p-3 bg-slate-50 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all"
-                  placeholder="e.g. Procurement Section"
+                  placeholder="e.g. Pagbilao Command Center"
                   value={formData.section}
                   onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                 />

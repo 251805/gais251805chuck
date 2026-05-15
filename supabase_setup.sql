@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS public.gsoid (
   date text,
   requested_by text,
   remarks text,
+  admin_remarks text,
+  is_linked boolean DEFAULT false,
+  linked_id text,
   type text,
   status text
 );
@@ -52,6 +55,20 @@ ALTER TABLE public.gsoid ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.line_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ris_requests ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies to avoid "already exists" errors
+DROP POLICY IF EXISTS "Allow anonymous read all gsoid" ON public.gsoid;
+DROP POLICY IF EXISTS "Allow anonymous insert gsoid" ON public.gsoid;
+DROP POLICY IF EXISTS "Allow anonymous update gsoid" ON public.gsoid;
+
+DROP POLICY IF EXISTS "Allow anonymous read all line_items" ON public.line_items;
+DROP POLICY IF EXISTS "Allow anonymous insert line_items" ON public.line_items;
+DROP POLICY IF EXISTS "Allow anonymous update line_items" ON public.line_items;
+
+DROP POLICY IF EXISTS "Allow anonymous read all ris_requests" ON public.ris_requests;
+DROP POLICY IF EXISTS "Allow anonymous insert ris_requests" ON public.ris_requests;
+DROP POLICY IF EXISTS "Allow anonymous update ris_requests" ON public.ris_requests;
+
+-- Recreate policies
 CREATE POLICY "Allow anonymous read all gsoid" ON public.gsoid FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert gsoid" ON public.gsoid FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update gsoid" ON public.gsoid FOR UPDATE USING (true);

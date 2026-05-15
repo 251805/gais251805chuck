@@ -1,22 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../layout/Sidebar';
 import PurchaseRequestForm from '../forms/PurchaseRequestForm';
 import RISRequestForm from '../forms/RISRequestForm';
 import InventoryView from './InventoryView';
 import StatusChecker from './StatusChecker';
+import AdminApprovalView from './AdminApprovalView';
+import WarehouseView from './WarehouseView';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Dashboard() {
+  const { role } = useAuth();
   const [activeTab, setActiveTab] = useState('pr');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Set default tab based on role once it's available
+  useEffect(() => {
+    if (role === 'ADMIN' || role === 'ROOT') {
+      setActiveTab('approval');
+    } else if (role === 'WAREHOUSE') {
+      setActiveTab('delivery');
+    } else {
+      setActiveTab('pr');
+    }
+  }, [role]);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'pr': return <PurchaseRequestForm />;
       case 'ris': return <RISRequestForm />;
       case 'status': return <StatusChecker />;
+      case 'approval': return <AdminApprovalView />;
       case 'inventory': return <InventoryView />;
+      case 'delivery': return <WarehouseView />;
       default: return <PurchaseRequestForm />;
     }
   };
