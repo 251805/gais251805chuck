@@ -117,8 +117,6 @@ export default function RISRequestForm() {
     }
 
     try {
-      console.log('DEBUG: Submitting RIS Request...', { gsoid, formData, validItems });
-      
       // 1. Insert GSOID Record (Master)
       const { error: gsoidError } = await supabase.from('gsoid').insert({
         id: gsoid,
@@ -134,7 +132,6 @@ export default function RISRequestForm() {
         console.error('DEBUG: gsoid Insert Error (RIS):', gsoidError);
         throw gsoidError;
       }
-      console.log('DEBUG: GSOID inserted successfully');
 
       // 2. Insert into ris_requests table (Dedicated for RIS tracking and stock deduction)
       const risItemsToInsert = validItems.map(item => ({
@@ -152,13 +149,11 @@ export default function RISRequestForm() {
         is_issued: false
       }));
 
-      console.log('DEBUG: Inserting into ris_requests...', risItemsToInsert);
       const { error: risError } = await supabase.from('ris_requests').insert(risItemsToInsert);
       if (risError) {
         console.error('DEBUG: ris_requests Insert Error:', risError);
         throw risError;
       }
-      console.log('DEBUG: ris_requests inserted successfully');
 
       // 3. Also insert into line_items for backward compatibility with general views
       const lineItemsToInsert = validItems.map(item => ({
