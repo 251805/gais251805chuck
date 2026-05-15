@@ -57,9 +57,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden font-sans">
+      <div className="absolute inset-0 z-0 bg-[url('/municipal-hall-bg.jpg')] bg-cover bg-center opacity-[0.05]" />
+      
       {/* Background Decorations */}
-      <div className="absolute top-0 -left-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl z-0" />
-      <div className="absolute bottom-0 -right-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl z-0" />
+      <div className="absolute top-0 -left-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl z-10" />
+      <div className="absolute bottom-0 -right-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl z-10" />
 
       <main className="max-w-5xl mx-auto flex items-center justify-center min-h-screen z-10 p-4 relative">
         <motion.div 
