@@ -21,7 +21,6 @@ export default function RISIssueForm() {
     setItems([]);
 
     const searchGsoid = query.trim().toUpperCase();
-    console.log(`DEBUG: Searching for GSOID: "${searchGsoid}"`);
 
     try {
       // 1. Verify GSOID exists and check its type and status
@@ -63,7 +62,6 @@ export default function RISIssueForm() {
       }
 
       // 5. Fallback to line_items if ris_requests is empty (handling legacy data or creation failures)
-      console.log('DEBUG: No ris_requests found, falling back to line_items');
       const { data: lineItemsData, error: lineItemsError } = await supabase
         .from('line_items')
         .select('*')
