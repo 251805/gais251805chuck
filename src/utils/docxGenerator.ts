@@ -36,8 +36,6 @@ export const generatePurchaseRequestDocx = async (data: any, items: any[], gsoid
                     year: 'numeric'
                 });
 
-                console.log('Generating PR Docx with status:', data.status);
-
                 const docData = {
                     DEPARTMENT: data.department?.toUpperCase() || '',
                     DATE: formattedDate,
@@ -119,8 +117,6 @@ export const generateRISDocx = async (data: any, items: any[], gsoid: string) =>
                     day: 'numeric',
                     year: 'numeric'
                 });
-
-                console.log('Generating RIS Docx with status:', data.status);
 
                 const docData = {
                     DEPARTMENT: data.department?.toUpperCase() || '',

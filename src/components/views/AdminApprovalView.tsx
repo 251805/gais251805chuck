@@ -25,10 +25,7 @@ import { format } from 'date-fns';
 import { generatePurchaseRequestDocx, generateRISDocx } from '../../utils/docxGenerator';
 import PRPrintTemplate from '../forms/PRPrintTemplate';
 import RISPrintTemplate from '../forms/RISPrintTemplate';
-import { useAuth } from '../../contexts/AuthContext';
-
 export default function AdminApprovalView() {
-  const { user } = useAuth();
   const [requests, setRequests] = useState<GSOIDRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
