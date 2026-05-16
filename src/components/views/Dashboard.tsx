@@ -6,6 +6,7 @@ import InventoryView from './InventoryView';
 import StatusChecker from './StatusChecker';
 import AdminApprovalView from './AdminApprovalView';
 import WarehouseView from './WarehouseView';
+import ReportsView from './ReportsView';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -34,6 +35,7 @@ export default function Dashboard() {
       case 'approval': return <AdminApprovalView />;
       case 'inventory': return <InventoryView />;
       case 'delivery': return <WarehouseView />;
+      case 'reports': return <ReportsView />;
       default: return <PurchaseRequestForm />;
     }
   };

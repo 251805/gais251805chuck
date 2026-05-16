@@ -11,7 +11,8 @@ import {
   TrendingDown,
   Search,
   ShieldCheck,
-  FileText
+  FileText,
+  History
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LINKS } from '../../constants';
@@ -31,6 +32,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     { id: 'status', label: 'Track Request', icon: Search, roles: ['GUEST', 'ADMIN', 'WAREHOUSE', 'ROOT'] },
     { id: 'approval', label: 'Admin Approval', icon: ShieldCheck, roles: ['ADMIN', 'ROOT'] },
     { id: 'inventory', label: 'Inventory Peak', icon: Package, roles: ['GUEST', 'ADMIN', 'WAREHOUSE', 'ROOT'] },
+    { id: 'reports', label: 'Transaction Logs', icon: History, roles: ['ADMIN', 'WAREHOUSE', 'ROOT'] },
   ];
 
   const filteredItems = navItems.filter(item => item.roles.includes(role || ''));
