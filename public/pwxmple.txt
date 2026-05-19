@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAIS 251805 - Premium Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .anime-vibe {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: white;
+        }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        .vercel-card {
+            background: #000;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body class="anime-vibe min-h-screen flex font-sans overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-[#0F172A] p-6 border-r border-slate-700 flex flex-col justify-between">
+        <div>
+            <div class="text-blue-400 font-bold text-xl mb-8 flex items-center">
+                <i class="fas fa-microchip mr-2"></i> GAIS 251805
+            </div>
+            
+            <nav class="space-y-4">
+                <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Standard</div>
+                <a href="#" class="flex items-center text-slate-300 hover:text-white transition py-1 text-sm">
+                    <i class="fas fa-file-invoice mr-3 w-4"></i> PR Generation
+                </a>
+                <a href="#" class="flex items-center text-slate-300 hover:text-white transition py-1 text-sm">
+                    <i class="fas fa-boxes mr-3 w-4"></i> RIS Path A
+                </a>
+                
+                <div class="pt-6 text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Premium Modules</div>
+                <button onclick="checkAccess('Google Chat Integration')" class="flex items-center text-slate-400 hover:text-blue-400 w-full transition py-1 text-sm">
+                    <i class="fab fa-google mr-3 w-4 text-xs"></i> Google Chat <i class="fas fa-lock ml-auto text-[10px] opacity-40"></i>
+                </button>
+                <button onclick="checkAccess('Facebook Customer Support')" class="flex items-center text-slate-400 hover:text-blue-400 w-full transition py-1 text-sm">
+                    <i class="fab fa-facebook mr-3 w-4 text-xs"></i> FB Support <i class="fas fa-lock ml-auto text-[10px] opacity-40"></i>
+                </button>
+                <button onclick="checkAccess('RIS Path B Auto-Fetch')" class="flex items-center text-slate-400 hover:text-blue-400 w-full transition py-1 text-sm">
+                    <i class="fas fa-bolt mr-3 w-4 text-xs text-amber-500"></i> RIS Path B <i class="fas fa-lock ml-auto text-[10px] opacity-40"></i>
+                </button>
+            </nav>
+        </div>
+
+        <div class="pt-6 border-t border-slate-800">
+            <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Access Level</p>
+            <select id="userRole" class="bg-slate-900 border border-slate-700 text-white text-xs p-2 rounded w-full focus:outline-none focus:border-blue-500">
+                <option value="GUEST">GUEST (Restricted)</option>
+                <option value="ADMIN">ADMIN (Restricted)</option>
+                <option value="ROOT">ROOT (Lee - Full Access)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="flex-1 p-12 overflow-y-auto">
+        <header class="mb-10">
+            <h1 class="text-4xl font-extrabold text-white tracking-tight">Municipal Logistics <span class="text-blue-500">Command Center</span></h1>
+            <p class="text-slate-400 mt-2 text-lg">Pagbilao, Quezon | Province-Wide Digital Transformation</p>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 h-48 flex flex-col justify-center items-center">
+                <i class="fas fa-chart-line text-4xl text-blue-500 mb-4"></i>
+                <p class="text-slate-300 font-medium">Audit-Ready Logistics Active</p>
+            </div>
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 h-48 flex flex-col justify-center items-center">
+                <i class="fas fa-shield-alt text-4xl text-emerald-500 mb-4"></i>
+                <p class="text-slate-300 font-medium">RA 9184 Compliance Verified</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMBINED VERCEL UPGRADE MODAL -->
+    <div id="upgradeModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+        <div class="vercel-card max-w-md w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-300">
+            <div class="p-8">
+                <!-- Vercel Branding -->
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <svg width="24" height="24" viewBox="0 0 76 65" fill="white"><path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/></svg>
+                        <span class="text-lg font-bold tracking-tight uppercase">Vercel Platform</span>
+                    </div>
+                    <button onclick="closeModal()" class="text-slate-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-3 text-white">Upgrade to Pro</h2>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                    The requested feature <strong class="text-white"><span id="featureName"></span></strong> requires a 
+                    <span class="text-blue-400 font-semibold">Vercel Pro</span> or <span class="text-blue-400 font-semibold">Enterprise</span> deployment. 
+                    Your current environment is limited to <span class="italic">Hobby Tier</span> execution.
+                </p>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start text-xs text-slate-300">
+                        <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-3"></i>
+                        <span>Unlock 1-Click <strong class="text-white">Path B Auto-Fetch</strong> Logic for bulk deliveries.</span>
+                    </li>
+                    <li class="flex items-start text-xs text-slate-300">
+                        <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-3"></i>
+                        <span>Activate Real-time <strong class="text-white">Facebook & Google</strong> Chat support sync.</span>
+                    </li>
+                    <li class="flex items-start text-xs text-slate-300">
+                        <i class="fas fa-check-circle text-blue-500 mt-0.5 mr-3"></i>
+                        <span>Dedicated bandwidth for unlimited Audit-Defense reports.</span>
+                    </li>
+                </ul>
+
+                <div class="space-y-3">
+                    <a href="https://vercel.com/pricing" target="_blank" class="block w-full bg-white text-black text-center font-bold py-3 rounded-lg hover:bg-slate-200 transition">
+                        View Enterprise Pricing
+                    </a>
+                    <button onclick="closeModal()" class="w-full text-slate-500 text-xs hover:text-slate-300 transition py-2">
+                        Dismiss Alert
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Technical Footer -->
+            <div class="bg-white/5 px-8 py-4 border-t border-white/10 flex justify-between items-center">
+                <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold">PROJECT: GAIS_251805</span>
+                <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold">REF: JARFHK...WLZNA</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAccess(feature) {
+            const role = document.getElementById('userRole').value;
+
+            if (role === 'ROOT') {
+                // Bypass logic for Lee
+                alert("✨ ROOT AUTHORITY DETECTED: Opening " + feature);
+                console.log("ROOT bypass active: Executing " + feature);
+            } else {
+                // Show Vercel Wall for others
+                document.getElementById('featureName').innerText = feature;
+                document.getElementById('upgradeModal').classList.remove('hidden');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('upgradeModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

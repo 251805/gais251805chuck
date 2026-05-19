@@ -4,16 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GSO Procurement System | LGU Pagbilao</title>
+    
+    <!-- 1. EMERGENCY SERVICE WORKER TERMINATION: Must run before any module scripts -->
+    <script>
+      (function() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister();
+              console.log('SW Unregistered forcibly via index.html');
+            }
+          });
+        }
+        // Clear caches to prevent stale script loading
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            for (let name of names) caches.delete(name);
+          });
+        }
+      })();
+    </script>
+
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0F172A" />
     <link rel="apple-touch-icon" href="https://github.com/251805/sirpacheck/blob/main/gso.png?raw=true" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <script src="/sw-kill.js"></script>
   </head>
   <body>
+    <!-- Emergency Fallback Target -->
     <div id="root"></div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
