@@ -5,22 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GSO Procurement System | LGU Pagbilao</title>
     
-    <!-- 1. EMERGENCY SERVICE WORKER TERMINATION: Must run before any module scripts -->
+    <!-- 1. EMERGENCY CACHE & SERVICE WORKER TERMINATION: Synchronous Head Block 
+         This must run before any module scripts execute to prevent Mobile Chrome intercepts. -->
     <script>
       (function() {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-              registration.unregister();
-              console.log('SW Unregistered forcibly via index.html');
-            }
-          });
-        }
-        // Clear caches to prevent stale script loading
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (let name of names) caches.delete(name);
-          });
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for(let registration of registrations) {
+                registration.unregister();
+                console.log('Mobile Chrome Safety: SW Unregistered');
+              }
+            });
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (let name of names) caches.delete(name);
+              console.log('Mobile Chrome Safety: Cache Cleaned');
+            });
+          }
+        } catch (e) {
+          console.warn('Cache breaker failed (Non-critical):', e);
         }
       })();
     </script>
@@ -32,9 +37,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
   <body>
-    <!-- Emergency Fallback Target -->
+    <!-- 2. FLAT MOUNT TARGET -->
     <div id="root"></div>
 
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- 3. FLAT REPOSITORY MAPPING: Direct root reference (No /src/ prefix) -->
+    <script type="module" src="/main.tsx"></script>
   </body>
 </html>

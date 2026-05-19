@@ -7,11 +7,16 @@ import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/views/Dashboard';
-import FacebookChat from './components/layout/FacebookChat';
+import FacebookChat from './components/layout/FacebookChat'; 
 import { motion, AnimatePresence } from 'motion/react';
 import { DISCLAIMER } from './constants';
 import { TriangleAlert } from 'lucide-react';
 
+/**
+ * AppContent Component
+ * Stripped of the problematic inline Facebook SDK factory loop.
+ * Delegated third-party thread management to the decoupled FacebookChat component.
+ */
 function AppContent() {
   const { role, logout, showDisclaimer, setShowDisclaimer, hasAcceptedDisclaimer, setHasAcceptedDisclaimer } = useAuth();
 
@@ -86,7 +91,10 @@ function AppContent() {
 
       {!role ? <LandingPage /> : <Dashboard />}
       
-      {/* Isolated Facebook Chat Guard */}
+      {/* 
+          OFF-THREAD GATEKEEPER: 
+          Facebook Chat is now loaded lazily after the main thread is silent.
+      */}
       <FacebookChat />
     </>
   );
