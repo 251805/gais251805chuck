@@ -1,7 +1,7 @@
 # GSO Procurement & Inventory System (GPIS)
 ## Comprehensive Technical Manual & User Guide
 
-This document outlines the end-to-end operational cycle of the GSO Procurement System, designed for RA 9184 compliance and real-time inventory tracking.
+This document outlines the end-to-end operational cycle of the GSO Procurement System, designed for RA 12009 compliance and real-time inventory tracking.
 
 ---
 
