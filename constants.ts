@@ -1,3 +1,17 @@
+// src/constants/index.ts (or your constants file path)
+
+export const TUTORIALS = {
+  FLOWCHART_IMAGE: "https://raw.githubusercontent.com/251805/gais251805chuck/main/public/end%20to%20end%20gso%20request.png",
+  VIDEOS: {
+    PR_REQUEST: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/1%20PR%20REQUEST%20NEW.mp4",
+    PR_ADMIN_APPROVAL: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/2%20PR%20ADMIN%20APPROVAL.mp4",
+    WAREHOUSE_DR: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/3%20DR%20WAREHOUSE%20CHECKING.mp4",
+    ADMIN_WAREHOUSE_RIS: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/4%20RIS%20REQUEST%20MULTI.mp4",
+    RIS_RELEASE: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/5%20RIS%20PICKUP.mp4",
+    REPORT: "https://jarfhkjcewjjdghwlzna.supabase.co/storage/v1/object/public/TUTORIAL/REPORT.mp4"
+  }
+};
+
 export const DEPARTMENTS = [
   "Office of the Municipal Mayor",
   "Office of the Municipal Administrator",
